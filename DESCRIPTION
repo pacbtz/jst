@@ -1,12 +1,18 @@
 Package: jst
-Title: What the Package Does (One Line, Title Case)
+Title: JSON Value Types via S7 Classes
 Version: 0.1.0
 Authors@R:
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Provides S7 classes for representing JSON value types (null,
+    boolean, number, string, array, object).  Typed JSON values can be
+    constructed with json_null(), json_boolean(), json_number(),
+    json_string(), json_array(), and json_object(), and serialised to
+    JSON text via format() / print().
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://github.com/pacbtz/jst
 BugReports: https://github.com/pacbtz/jst/issues
+Imports:
+    S7
