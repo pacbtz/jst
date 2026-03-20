@@ -10,7 +10,8 @@
 #' | `json_boolean` | `true` / `false` | `json_boolean(TRUE)` |
 #' | `json_number` | number | `json_number(3.14)` |
 #' | `json_string` | string | `json_string("hi")` |
-#' | `json_array` | array | `json_array(1:20)` |
+#' | `json_vector` | typed array | `json_vector(1:20)`, `json_vector(c("a","b"))` |
+#' | `json_array` | mixed array | `json_array(1, "two", json_null())` |
 #' | `json_object` | object | `json_object(x = 1, y = "a")` |
 #'
 #' Use [to_json()] to coerce ordinary R values to the appropriate JSON type.
@@ -23,8 +24,12 @@
 #' json_number(42)
 #' json_string("hello")
 #'
-#' # json_array accepts a vector or individual elements
-#' json_array(1:5)
+#' # json_vector: typed homogeneous array — stores the raw R vector
+#' json_vector(1:20)
+#' json_vector(c(1.5, 2.5, 3.5))
+#' json_vector(c("apple", "banana", "cherry"))
+#'
+#' # json_array: mixed-type array — each element can differ
 #' json_array(1, "two", TRUE, json_null())
 #'
 #' # json_object requires named arguments
@@ -103,6 +108,27 @@ json_string <- S7::new_class(
     value <- as.character(value)
     if (length(value) != 1L) {
       stop("`value` must be a scalar character string")
+    }
+    S7::new_object(json(), value = value)
+  }
+)
+
+# ---- json_vector ------------------------------------------------------------
+
+#' @rdname json-classes
+#' @export
+json_vector <- S7::new_class(
+  "json_vector",
+  parent = json,
+  properties = list(
+    value = S7::new_property(S7::class_any)
+  ),
+  constructor = function(value) {
+    if (!is.character(value) && !is.integer(value) && !is.double(value)) {
+      stop("`value` must be a character, integer, or double vector")
+    }
+    if (length(value) == 0L) {
+      stop("`value` must be a non-empty vector")
     }
     S7::new_object(json(), value = value)
   }
@@ -222,6 +248,16 @@ S7::method(.json_format, json_string) <- function(x, ...) {
   paste0('"', .json_escape(x@value), '"')
 }
 
+S7::method(.json_format, json_vector) <- function(x, ...) {
+  v <- x@value
+  elems <- if (is.character(v)) {
+    paste0('"', .json_escape(v), '"')
+  } else {
+    format(v, scientific = FALSE, trim = TRUE)
+  }
+  paste0("[", paste(elems, collapse = ", "), "]")
+}
+
 S7::method(.json_format, json_array) <- function(x, ...) {
   elems <- vapply(x@elements, .r_to_json_str, character(1L))
   paste0("[", paste(elems, collapse = ", "), "]")
@@ -253,8 +289,8 @@ print.json <- function(x, ...) {
 #' Converts common R types to the appropriate [json] sub-class:
 #' * `NULL`       -> [json_null]
 #' * `logical(1)` -> [json_boolean]; longer logical -> [json_array]
-#' * `numeric(1)` / `integer(1)` -> [json_number]; longer -> [json_array]
-#' * `character(1)` -> [json_string]; longer -> [json_array]
+#' * `numeric(1)` / `integer(1)` -> [json_number]; longer -> [json_vector]
+#' * `character(1)` -> [json_string]; longer -> [json_vector]
 #' * named `list` -> [json_object]; unnamed `list` -> [json_array]
 #' * Any [json] value is returned unchanged.
 #'
@@ -279,17 +315,17 @@ to_json.logical <- function(x, ...) {
 
 #' @export
 to_json.integer <- function(x, ...) {
-  if (length(x) == 1L) json_number(x) else json_array(x)
+  if (length(x) == 1L) json_number(x) else json_vector(x)
 }
 
 #' @export
 to_json.numeric <- function(x, ...) {
-  if (length(x) == 1L) json_number(x) else json_array(x)
+  if (length(x) == 1L) json_number(x) else json_vector(x)
 }
 
 #' @export
 to_json.character <- function(x, ...) {
-  if (length(x) == 1L) json_string(x) else json_array(x)
+  if (length(x) == 1L) json_string(x) else json_vector(x)
 }
 
 #' @export
