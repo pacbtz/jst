@@ -1,0 +1,11 @@
+# jst
+
+## Installation
+
+You can install the development version of jst from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("pacbtz/jst")
+```
