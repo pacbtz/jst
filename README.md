@@ -4,6 +4,8 @@
 [![R-CMD-check](https://github.com/pacbtz/jst/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pacbtz/jst/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
+**Website:** <https://pacbtz.github.io/jst/>
+
 ## Installation
 
 You can install the development version of jst from [GitHub](https://github.com/) with:
