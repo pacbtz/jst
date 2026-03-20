@@ -1,0 +1,149 @@
+---
+title: "Getting started with jst"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with jst}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(jst)
+```
+
+## Overview
+
+**jst** provides S7 classes that model every JSON value type. You get a typed
+R object — not just a raw string — that serialises to valid JSON via
+`format()` or `print()`.
+
+| Constructor | JSON type | Example output |
+|---|---|---|
+| `json_null()` | `null` | `null` |
+| `json_boolean(x)` | `true` / `false` | `true` |
+| `json_number(x)` | number | `42` |
+| `json_string(x)` | string | `"hello"` |
+| `json_vector(x)` | typed array | `[1, 2, 3]` |
+| `json_array(...)` | mixed array | `[1, "two", null]` |
+| `json_object(...)` | object | `{"x": 1}` |
+
+All types share the abstract `json` base class, so you can use `inherits(x,
+"json")` to check for any JSON value.
+
+## Scalar types
+
+```{r scalars}
+json_null()
+json_boolean(TRUE)
+json_boolean(FALSE)
+json_number(42)
+json_number(3.14)
+json_string("hello, world")
+```
+
+Numbers are always serialised without scientific notation, and strings are
+properly escaped:
+
+```{r escaping}
+json_number(1e6)          # not "1e+06"
+json_string('say "hi"')   # internal quotes escaped
+json_string("line1\nline2")
+```
+
+## Arrays
+
+Use `json_vector()` for **homogeneous** arrays of numbers or strings — it
+stores the raw R vector and is more efficient than `json_array()` for large
+sequences:
+
+```{r json-vector}
+json_vector(1:10)
+json_vector(c("apple", "banana", "cherry"))
+json_vector(c(1.5, 2.5, 3.5))
+```
+
+Use `json_array()` for **mixed-type** arrays, including nested JSON values:
+
+```{r json-array}
+json_array(1, "two", TRUE, json_null())
+json_array(json_boolean(FALSE), json_number(0), json_string(""))
+```
+
+Passing a plain R vector to `json_array()` expands it element-by-element:
+
+```{r json-array-vector}
+json_array(1:5)          # same as json_array(1, 2, 3, 4, 5)
+```
+
+## Objects
+
+`json_object()` takes **named** arguments and produces a JSON object. Values
+can be any R scalar, vector, or already-constructed JSON value:
+
+```{r json-object}
+json_object(name = "Alice", age = 30, active = TRUE)
+
+json_object(
+  id      = 1L,
+  tags    = json_vector(c("r", "json")),
+  address = json_object(city = "London", zip = "EC1A")
+)
+```
+
+## Coercion with `to_json()`
+
+`to_json()` converts plain R values to the most appropriate JSON type, so you
+rarely have to call the low-level constructors by hand:
+
+```{r to-json-scalars}
+to_json(NULL)
+to_json(TRUE)
+to_json(99L)
+to_json(3.14)
+to_json("hello")
+```
+
+Vectors of length > 1 become arrays:
+
+```{r to-json-vectors}
+to_json(c(TRUE, FALSE, TRUE))   # json_array  (logical)
+to_json(1:5)                    # json_vector (integer)
+to_json(c("a", "b", "c"))       # json_vector (character)
+```
+
+Named lists become objects; unnamed lists become arrays:
+
+```{r to-json-lists}
+to_json(list(x = 1, y = "hi"))    # json_object
+to_json(list(1, "two", TRUE))     # json_array
+```
+
+Already-constructed `json` values pass through unchanged:
+
+```{r to-json-passthrough}
+j <- json_boolean(TRUE)
+identical(to_json(j), j)
+```
+
+## Building complex documents
+
+Combine constructors and `to_json()` to build any JSON structure:
+
+```{r complex}
+doc <- json_object(
+  version  = 1L,
+  enabled  = TRUE,
+  config   = json_object(
+    retries = 3L,
+    tags    = json_vector(c("prod", "v2"))
+  ),
+  items    = json_array(
+    json_object(id = 1L, label = "first"),
+    json_object(id = 2L, label = "second")
+  ),
+  metadata = json_null()
+)
+
+cat(format(doc))
+```
