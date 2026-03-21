@@ -4,8 +4,7 @@ library(S7)
 
 test_that("json_null() constructs correctly", {
   x <- json_null()
-  expect_s3_class(x, "json_null")
-  expect_s3_class(x, "json")
+  expect_s7_class(x, jst::json_null)
 })
 
 test_that("json_null() formats as null", {
@@ -90,7 +89,7 @@ test_that("json_string() rejects length > 1", {
 
 test_that("json_vector() constructs from integer vector", {
   x <- json_vector(1:5)
-  expect_s3_class(x, "json_vector")
+  expect_s7_class(x, jst::json_vector)
   expect_equal(x@value, 1:5)
 })
 
@@ -124,7 +123,7 @@ test_that("json_vector() rejects logical vector", {
 
 test_that("json_array() constructs from multiple args", {
   x <- json_array(1, "two", TRUE)
-  expect_s3_class(x, "json_array")
+  expect_s7_class(x, jst::json_array)
   expect_length(x@elements, 3L)
 })
 
@@ -151,7 +150,7 @@ test_that("json_array() empty is []", {
 
 test_that("json_object() constructs from named args", {
   x <- json_object(a = 1, b = "hello")
-  expect_s3_class(x, "json_object")
+  expect_s7_class(x, jst::json_object)
   expect_equal(names(x@members), c("a", "b"))
 })
 

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Rscript -e \"library\\(jst\\)\")",
+      "Bash(Rscript -e \"devtools::build_vignettes\\(\\)\")",
+      "Bash(Rscript -e \"devtools::document\\(\\)\")",
+      "Bash(R CMD INSTALL .)",
+      "Bash(Rscript -e \"devtools::test\\(\\)\")",
+      "Bash(Rscript -e \"library\\(S7\\); getS3method\\(''print'', ''S7_object''\\); getS3method\\(''format'', ''S7_object'', optional=TRUE\\)\")",
+      "Bash(Rscript -e \"library\\(jst\\); json_boolean\\(TRUE\\)\")",
+      "Bash(Rscript -e \"library\\(jst\\); json_boolean\\(TRUE\\); json_null\\(\\); json_object\\(x=1L, y=''hi''\\)\")",
+      "Bash(Rscript -e \":*)"
+    ]
+  }
+}

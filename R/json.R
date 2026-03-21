@@ -18,6 +18,9 @@
 #' All JSON objects have `format()` and `print()` methods that produce valid
 #' JSON text.
 #'
+#' @param value The R value to store (logical, numeric, or character scalar/vector).
+#' @param ... Named or unnamed arguments passed to the constructor.
+#'
 #' @examples
 #' json_null()
 #' json_boolean(TRUE)
@@ -183,7 +186,7 @@ json_object <- S7::new_class(
 ## Escape a character string for inclusion inside JSON double-quotes.
 .json_escape <- function(s) {
   s <- gsub("\\\\", "\\\\\\\\", s, fixed = FALSE) # \ -> \\
-  s <- gsub('"',    '\\\\"',    s, fixed = TRUE)   # " -> \"
+  s <- gsub('"',    '\\"',      s, fixed = TRUE)   # " -> \"
   s <- gsub("\n",   "\\n",      s, fixed = TRUE)   # newline
   s <- gsub("\r",   "\\r",      s, fixed = TRUE)   # CR
   s <- gsub("\t",   "\\t",      s, fixed = TRUE)   # tab
@@ -192,7 +195,7 @@ json_object <- S7::new_class(
 
 ## Convert an arbitrary R value (or json object) to a JSON string.
 .r_to_json_str <- function(x) {
-  if (inherits(x, "json")) return(format(x))
+  if (inherits(x, "json") || S7::S7_inherits(x, json)) return(format(x))
   if (is.null(x))          return("null")
   if (is.logical(x)) {
     strs <- ifelse(x, "true", "false")
@@ -277,9 +280,24 @@ S7::method(.json_format, json_object) <- function(x, ...) {
 format.json <- function(x, ...) .json_format(x, ...)
 
 #' @export
+format.S7_object <- function(x, ...) {
+  if (S7::S7_inherits(x, json)) .json_format(x, ...) else NextMethod()
+}
+
+#' @export
 print.json <- function(x, ...) {
   cat(.json_format(x, ...), "\n")
   invisible(x)
+}
+
+#' @export
+print.S7_object <- function(x, ...) {
+  if (S7::S7_inherits(x, json)) {
+    cat(.json_format(x, ...), "\n")
+    invisible(x)
+  } else {
+    NextMethod()
+  }
 }
 
 # ---- Coercion ---------------------------------------------------------------
@@ -335,3 +353,8 @@ to_json.list <- function(x, ...) {
 
 #' @export
 to_json.json <- function(x, ...) x
+
+#' @export
+to_json.S7_object <- function(x, ...) {
+  if (S7::S7_inherits(x, json)) x else stop("no to_json method for this S7 object")
+}

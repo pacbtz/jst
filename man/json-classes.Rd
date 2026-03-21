@@ -28,6 +28,11 @@ json_array(...)
 
 json_object(...)
 }
+\arguments{
+\item{value}{The R value to store (logical, numeric, or character scalar/vector).}
+
+\item{...}{Named or unnamed arguments passed to the constructor.}
+}
 \description{
 S7 classes for representing all JSON value types. The \code{json} class is the
 abstract base; each JSON value type has a dedicated sub-class:\tabular{lll}{
