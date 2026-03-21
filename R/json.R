@@ -124,16 +124,23 @@ json_vector <- S7::new_class(
   "json_vector",
   parent = json,
   properties = list(
-    value = S7::new_property(S7::class_any)
+    value = S7::new_property(S7::class_any),
+    type  = S7::new_property(S7::class_character),
+    size  = S7::new_property(S7::class_integer)
   ),
   constructor = function(value) {
-    if (!is.character(value) && !is.integer(value) && !is.double(value)) {
-      stop("`value` must be a character, integer, or double vector")
+    if (!is.character(value) && !is.integer(value) &&
+        !is.double(value) && !is.logical(value)) {
+      stop("`value` must be a character, integer, double, or logical vector")
     }
     if (length(value) == 0L) {
       stop("`value` must be a non-empty vector")
     }
-    S7::new_object(json(), value = value)
+    type <- if (is.character(value)) "string"
+            else if (is.integer(value)) "integer"
+            else if (is.double(value)) "double"
+            else "logical"
+    S7::new_object(json(), value = value, type = type, size = length(value))
   }
 )
 
@@ -255,6 +262,8 @@ S7::method(.json_format, json_vector) <- function(x, ...) {
   v <- x@value
   elems <- if (is.character(v)) {
     paste0('"', .json_escape(v), '"')
+  } else if (is.logical(v)) {
+    ifelse(v, "true", "false")
   } else {
     format(v, scientific = FALSE, trim = TRUE)
   }
@@ -328,7 +337,7 @@ to_json.NULL <- function(x, ...) json_null()
 
 #' @export
 to_json.logical <- function(x, ...) {
-  if (length(x) == 1L) json_boolean(x) else json_array(x)
+  if (length(x) == 1L) json_boolean(x) else json_vector(x)
 }
 
 #' @export
