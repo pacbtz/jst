@@ -409,6 +409,44 @@ print.S7_object <- function(x, ...) {
   if (S7::S7_inherits(x, json)) print.json(x, ...) else NextMethod()
 }
 
+# ---- Apply ------------------------------------------------------------------
+
+#' Apply a function over elements of a JSON array or object
+#'
+#' Applies `f` to each element of a [json_array] or each member value of a
+#' [json_object] and returns a new JSON object of the same type with the
+#' transformed values.  Works like [base::lapply] but preserves the JSON
+#' container type.
+#'
+#' @param x A [json_array] or [json_object].
+#' @param f A function.  For [json_array] it receives each element; for
+#'   [json_object] it receives each member value.  The return value must be
+#'   something accepted by the respective constructor — a plain R scalar,
+#'   vector, list, `NULL`, or a [json] object.
+#' @param ... Additional arguments passed to `f`.
+#' @return A [json_array] or [json_object] (same class as `x`) whose
+#'   elements/members are the results of calling `f`.
+#' @export
+#' @examples
+#' # Scale every number in an object
+#' obj <- json_object(a = 1, b = 2, c = 3)
+#' json_lapply(obj, function(v) v * 2)
+#'
+#' # Wrap plain values as typed json objects
+#' arr <- json_array(1, "hello", TRUE)
+#' json_lapply(arr, to_json)
+json_lapply <- function(x, f, ...) {
+  if (S7::S7_inherits(x, json_object)) {
+    new_members <- lapply(x@members, f, ...)
+    do.call(json_object, new_members)
+  } else if (S7::S7_inherits(x, json_array)) {
+    new_elements <- lapply(x@elements, f, ...)
+    do.call(json_array, new_elements)
+  } else {
+    stop("`x` must be a json_array or json_object")
+  }
+}
+
 # ---- Coercion ---------------------------------------------------------------
 
 #' Coerce R values to JSON
