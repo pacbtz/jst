@@ -215,3 +215,61 @@ test_that("json_object() escapes key names", {
   x <- json_object(`k"ey` = 1)
   expect_equal(format(x), '{"k\\"ey": 1}')
 })
+
+# ---- json_pretty / print -----------------------------------------------------
+
+test_that("json_pretty() renders scalars unchanged", {
+  expect_equal(json_pretty(json_null()),        "null")
+  expect_equal(json_pretty(json_boolean(TRUE)), "true")
+  expect_equal(json_pretty(json_number(3.14)),  "3.14")
+  expect_equal(json_pretty(json_string("hi")),  '"hi"')
+})
+
+test_that("json_pretty() renders json_vector on one line", {
+  expect_equal(json_pretty(json_vector(1:3)), "[1, 2, 3]")
+  expect_equal(json_pretty(json_vector(c("a", "b"))), '["a", "b"]')
+})
+
+test_that("json_pretty() truncates json_vector beyond vector_max", {
+  x <- json_vector(1:15)
+  out <- json_pretty(x, vector_max = 5L)
+  expect_equal(out, "[1, 2, 3, 4, 5, ... (10 more)]")
+})
+
+test_that("json_pretty() respects jst.vector_max option", {
+  x <- json_vector(1:20)
+  withr::with_options(list(jst.vector_max = 3L), {
+    expect_equal(json_pretty(x), "[1, 2, 3, ... (17 more)]")
+  })
+})
+
+test_that("json_pretty() indents json_object", {
+  x   <- json_object(a = 1, b = "x")
+  out <- json_pretty(x, indent = 2L)
+  expect_equal(out, '{\n  "a": 1,\n  "b": "x"\n}')
+})
+
+test_that("json_pretty() indents json_array", {
+  x   <- json_array(1, "two")
+  out <- json_pretty(x, indent = 2L)
+  expect_equal(out, '[\n  1,\n  "two"\n]')
+})
+
+test_that("json_pretty() returns [] and {} for empty containers", {
+  expect_equal(json_pretty(json_array()),  "[]")
+  expect_equal(json_pretty(json_object()), "{}")
+})
+
+test_that(".json_header() includes class, length, type", {
+  expect_match(jst:::.json_header(json_vector(1:5)),        "json_vector.*length:5.*type:integer")
+  expect_match(jst:::.json_header(json_object(a = 1)),      "json_object.*length:1")
+  expect_match(jst:::.json_header(json_array(1, 2)),        "json_array.*length:2")
+  expect_match(jst:::.json_header(json_null()),             "json_null")
+})
+
+test_that("print.json() truncates to max_lines", {
+  x   <- do.call(json_object, setNames(as.list(1:30), paste0("k", 1:30)))
+  out <- capture.output(print(x, max_lines = 5L))
+  expect_true(any(grepl("more lines", out)))
+  expect_lte(sum(!grepl("more lines", out)), 6L)  # header + 5 content lines
+})
