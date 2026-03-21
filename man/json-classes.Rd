@@ -50,6 +50,14 @@ abstract base; each JSON value type has a dedicated sub-class:\tabular{lll}{
 Use \code{\link[=to_json]{to_json()}} to coerce ordinary R values to the appropriate JSON type.
 All JSON objects have \code{format()} and \code{print()} methods that produce valid
 JSON text.
+\subsection{JSON5 output}{
+
+Pass \code{json5 = TRUE} to \code{format()}, \code{print()}, or \code{\link[=json_pretty]{json_pretty()}} to produce
+\href{https://json5.org/}{JSON5} output.  In JSON5 mode strings are delimited
+with single quotes and object keys that are valid identifiers are left
+unquoted.  The global default can be set with
+\code{options(jst.json5 = TRUE)}.
+}
 }
 \examples{
 json_null()

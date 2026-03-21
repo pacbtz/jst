@@ -4,7 +4,12 @@
 \alias{json_pretty}
 \title{Pretty-print a JSON object}
 \usage{
-json_pretty(x, indent = 2L, vector_max = getOption("jst.vector_max", 10L))
+json_pretty(
+  x,
+  indent = 2L,
+  vector_max = getOption("jst.vector_max", 10L),
+  json5 = getOption("jst.json5", FALSE)
+)
 }
 \arguments{
 \item{x}{A \link{json} object.}
@@ -13,6 +18,10 @@ json_pretty(x, indent = 2L, vector_max = getOption("jst.vector_max", 10L))
 
 \item{vector_max}{Maximum number of elements to show for \link{json_vector}
 before truncating.  Defaults to \code{getOption("jst.vector_max", 10L)}.}
+
+\item{json5}{If \code{TRUE}, produce JSON5 output: strings are single-quoted and
+object keys that are valid identifiers are left unquoted.  Defaults to
+\code{getOption("jst.json5", FALSE)}.}
 }
 \value{
 A single character string (invisibly from \code{print}).
