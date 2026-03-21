@@ -119,7 +119,7 @@ test_that("json_vector() constructs from logical vector", {
   x <- json_vector(c(TRUE, FALSE, TRUE))
   expect_equal(x@value, c(TRUE, FALSE, TRUE))
   expect_equal(x@type, "logical")
-  expect_equal(x@size, 3L)
+  expect_equal(x@length, 3L)
 })
 
 test_that("json_vector() formats logical as JSON array of true/false", {
@@ -133,9 +133,31 @@ test_that("json_vector() type field reflects element type", {
   expect_equal(json_vector(c(TRUE, FALSE))@type,   "logical")
 })
 
-test_that("json_vector() size field records vector length", {
-  expect_equal(json_vector(1:5)@size,              5L)
-  expect_equal(json_vector(c("x", "y", "z"))@size, 3L)
+test_that("json_vector() length field records vector length", {
+  expect_equal(json_vector(1:5)@length,              5L)
+  expect_equal(json_vector(c("x", "y", "z"))@length, 3L)
+})
+
+test_that("json_boolean() length is 1L", {
+  expect_equal(json_boolean(TRUE)@length, 1L)
+})
+
+test_that("json_number() length is 1L", {
+  expect_equal(json_number(42)@length, 1L)
+})
+
+test_that("json_string() length is 1L", {
+  expect_equal(json_string("hi")@length, 1L)
+})
+
+test_that("json_array() length field counts elements", {
+  expect_equal(json_array(1, 2, 3)@length, 3L)
+  expect_equal(json_array()@length,        0L)
+})
+
+test_that("json_object() length field counts members", {
+  expect_equal(json_object(a = 1, b = 2)@length, 2L)
+  expect_equal(json_object()@length,              0L)
 })
 
 # ---- json_array --------------------------------------------------------------

@@ -65,13 +65,14 @@ json_boolean <- S7::new_class(
   "json_boolean",
   parent = json,
   properties = list(
-    value = S7::new_property(S7::class_logical, default = FALSE)
+    value  = S7::new_property(S7::class_logical, default = FALSE),
+    length = S7::new_property(S7::class_integer)
   ),
   constructor = function(value = FALSE) {
     if (!is.logical(value) || length(value) != 1L || is.na(value)) {
       stop("`value` must be a non-NA scalar logical")
     }
-    S7::new_object(json(), value = value)
+    S7::new_object(json(), value = value, length = 1L)
   }
 )
 
@@ -83,7 +84,8 @@ json_number <- S7::new_class(
   "json_number",
   parent = json,
   properties = list(
-    value = S7::new_property(S7::class_numeric, default = 0)
+    value  = S7::new_property(S7::class_numeric, default = 0),
+    length = S7::new_property(S7::class_integer)
   ),
   constructor = function(value = 0) {
     value <- as.numeric(value)
@@ -93,7 +95,7 @@ json_number <- S7::new_class(
     if (is.nan(value) || is.infinite(value)) {
       stop("`value` must be finite (NaN and Inf are not valid JSON numbers)")
     }
-    S7::new_object(json(), value = value)
+    S7::new_object(json(), value = value, length = 1L)
   }
 )
 
@@ -105,14 +107,15 @@ json_string <- S7::new_class(
   "json_string",
   parent = json,
   properties = list(
-    value = S7::new_property(S7::class_character, default = "")
+    value  = S7::new_property(S7::class_character, default = ""),
+    length = S7::new_property(S7::class_integer)
   ),
   constructor = function(value = "") {
     value <- as.character(value)
     if (length(value) != 1L) {
       stop("`value` must be a scalar character string")
     }
-    S7::new_object(json(), value = value)
+    S7::new_object(json(), value = value, length = 1L)
   }
 )
 
@@ -124,9 +127,9 @@ json_vector <- S7::new_class(
   "json_vector",
   parent = json,
   properties = list(
-    value = S7::new_property(S7::class_any),
-    type  = S7::new_property(S7::class_character),
-    size  = S7::new_property(S7::class_integer)
+    value  = S7::new_property(S7::class_any),
+    type   = S7::new_property(S7::class_character),
+    length = S7::new_property(S7::class_integer)
   ),
   constructor = function(value) {
     if (!is.character(value) && !is.integer(value) &&
@@ -140,7 +143,7 @@ json_vector <- S7::new_class(
             else if (is.integer(value)) "integer"
             else if (is.double(value)) "double"
             else "logical"
-    S7::new_object(json(), value = value, type = type, size = length(value))
+    S7::new_object(json(), value = value, type = type, length = length(value))
   }
 )
 
@@ -152,7 +155,8 @@ json_array <- S7::new_class(
   "json_array",
   parent = json,
   properties = list(
-    elements = S7::new_property(S7::class_list, default = list())
+    elements = S7::new_property(S7::class_list, default = list()),
+    length   = S7::new_property(S7::class_integer)
   ),
   constructor = function(...) {
     args <- list(...)
@@ -162,7 +166,7 @@ json_array <- S7::new_class(
     } else {
       args
     }
-    S7::new_object(json(), elements = elements)
+    S7::new_object(json(), elements = elements, length = length(elements))
   }
 )
 
@@ -174,7 +178,8 @@ json_object <- S7::new_class(
   "json_object",
   parent = json,
   properties = list(
-    members = S7::new_property(S7::class_list, default = list())
+    members = S7::new_property(S7::class_list, default = list()),
+    length  = S7::new_property(S7::class_integer)
   ),
   constructor = function(...) {
     args <- list(...)
@@ -184,7 +189,7 @@ json_object <- S7::new_class(
         stop("All arguments to `json_object()` must be named")
       }
     }
-    S7::new_object(json(), members = args)
+    S7::new_object(json(), members = args, length = length(args))
   }
 )
 
