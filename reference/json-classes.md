@@ -54,9 +54,6 @@ json_object(...)
 
 ``` r
 json_null()
-#> Registered S3 method overwritten by 'S7':
-#>   method          from
-#>   print.S7_object jst 
 #> <jst::json_null>
 json_boolean(TRUE)
 #> <jst::json_boolean>
