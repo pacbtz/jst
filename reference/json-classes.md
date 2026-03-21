@@ -20,6 +20,16 @@ have [`format()`](https://rdrr.io/r/base/format.html) and
 [`print()`](https://rdrr.io/r/base/print.html) methods that produce
 valid JSON text.
 
+### JSON5 output
+
+Pass `json5 = TRUE` to [`format()`](https://rdrr.io/r/base/format.html),
+[`print()`](https://rdrr.io/r/base/print.html), or
+[`json_pretty()`](https://pacbtz.github.io/jst/reference/json_pretty.md)
+to produce [JSON5](https://json5.org/) output. In JSON5 mode strings are
+delimited with single quotes and object keys that are valid identifiers
+are left unquoted. The global default can be set with
+`options(jst.json5 = TRUE)`.
+
 ## Usage
 
 ``` r

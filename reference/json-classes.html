@@ -15,7 +15,17 @@ json_objectobjectjson_object(x = 1, y = "a")
 
 Use to_json() to coerce ordinary R values to the appropriate JSON type.
 All JSON objects have format() and print() methods that produce valid
-JSON text.'><meta property="og:description" content='S7 classes for representing all JSON value types. The json class is the
+JSON text.
+JSON5 output
+
+
+Pass json5 = TRUE to format(), print(), or json_pretty() to produce
+JSON5 output.  In JSON5 mode strings are delimited
+with single quotes and object keys that are valid identifiers are left
+unquoted.  The global default can be set with
+options(jst.json5 = TRUE).
+
+'><meta property="og:description" content='S7 classes for representing all JSON value types. The json class is the
 abstract base; each JSON value type has a dedicated sub-class:
 ClassJSON typeConstructor example
 json_nullnulljson_null()
@@ -31,7 +41,17 @@ json_objectobjectjson_object(x = 1, y = "a")
 
 Use to_json() to coerce ordinary R values to the appropriate JSON type.
 All JSON objects have format() and print() methods that produce valid
-JSON text.'></head><body>
+JSON text.
+JSON5 output
+
+
+Pass json5 = TRUE to format(), print(), or json_pretty() to produce
+JSON5 output.  In JSON5 mode strings are delimited
+with single quotes and object keys that are valid identifiers are left
+unquoted.  The global default can be set with
+options(jst.json5 = TRUE).
+
+'></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -69,7 +89,17 @@ JSON text.'></head><body>
     <p>S7 classes for representing all JSON value types. The <code>json</code> class is the
 abstract base; each JSON value type has a dedicated sub-class:</p><table class="table table"><tr><td>Class</td><td>JSON type</td><td>Constructor example</td></tr><tr><td><code>json_null</code></td><td><code>null</code></td><td><code>json_null()</code></td></tr><tr><td><code>json_boolean</code></td><td><code>true</code> / <code>false</code></td><td><code>json_boolean(TRUE)</code></td></tr><tr><td><code>json_number</code></td><td>number</td><td><code>json_number(3.14)</code></td></tr><tr><td><code>json_string</code></td><td>string</td><td><code>json_string("hi")</code></td></tr><tr><td><code>json_vector</code></td><td>typed array</td><td><code>json_vector(1:20)</code>, <code>json_vector(c("a","b"))</code></td></tr><tr><td><code>json_array</code></td><td>mixed array</td><td><code>json_array(1, "two", json_null())</code></td></tr><tr><td><code>json_object</code></td><td>object</td><td><code>json_object(x = 1, y = "a")</code></td></tr></table><p>Use <code><a href="to_json.html">to_json()</a></code> to coerce ordinary R values to the appropriate JSON type.
 All JSON objects have <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> methods that produce valid
-JSON text.</p>
+JSON text.</p><div class="section">
+<h3 id="json-output">JSON5 output<a class="anchor" aria-label="anchor" href="#json-output"></a></h3>
+
+
+<p>Pass <code>json5 = TRUE</code> to <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, or <code><a href="json_pretty.html">json_pretty()</a></code> to produce
+<a href="https://json5.org/" class="external-link">JSON5</a> output.  In JSON5 mode strings are delimited
+with single quotes and object keys that are valid identifiers are left
+unquoted.  The global default can be set with
+<code>options(jst.json5 = TRUE)</code>.</p>
+</div>
+
     </div>
 
     <div class="section level2">
