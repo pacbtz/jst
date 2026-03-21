@@ -447,6 +447,49 @@ json_lapply <- function(x, f, ...) {
   }
 }
 
+# ---- as.list ----------------------------------------------------------------
+
+## Internal helper: recursively convert any value (plain R or json) to R.
+.to_r <- function(x) {
+  if (S7::S7_inherits(x, json)) .json_as_r(x) else x
+}
+
+## Internal S7 generic — one method per concrete json sub-class.
+.json_as_r <- S7::new_generic(".json_as_r", "x")
+
+S7::method(.json_as_r, json_null)    <- function(x, ...) NULL
+S7::method(.json_as_r, json_boolean) <- function(x, ...) x@value
+S7::method(.json_as_r, json_number)  <- function(x, ...) x@value
+S7::method(.json_as_r, json_string)  <- function(x, ...) x@value
+S7::method(.json_as_r, json_vector)  <- function(x, ...) x@value
+S7::method(.json_as_r, json_array)   <- function(x, ...) lapply(x@elements, .to_r)
+S7::method(.json_as_r, json_object)  <- function(x, ...) lapply(x@members,  .to_r)
+
+#' Coerce a JSON object to a plain R value
+#'
+#' Recursively converts a [json] object back to ordinary R values:
+#' * [json_null]    -> `NULL`
+#' * [json_boolean] -> `logical(1)`
+#' * [json_number]  -> `numeric(1)`
+#' * [json_string]  -> `character(1)`
+#' * [json_vector]  -> atomic vector (character / integer / double / logical)
+#' * [json_array]   -> unnamed `list` (elements recursively converted)
+#' * [json_object]  -> named `list` (member values recursively converted)
+#'
+#' @param x A [json] object.
+#' @param ... Unused.
+#' @return An R value corresponding to the JSON type.
+#' @export
+#' @examples
+#' as.list(json_object(a = 1, b = "hello", c = TRUE))
+#' as.list(json_array(1, "two", json_null()))
+as.list.json <- function(x, ...) .json_as_r(x)
+
+#' @export
+as.list.S7_object <- function(x, ...) {
+  if (S7::S7_inherits(x, json)) .json_as_r(x) else NextMethod()
+}
+
 # ---- Coercion ---------------------------------------------------------------
 
 #' Coerce R values to JSON
