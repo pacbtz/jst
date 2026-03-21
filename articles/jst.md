@@ -30,19 +30,24 @@ json_null()
 #> <jst::json_null>
 json_boolean(TRUE)
 #> <jst::json_boolean>
-#>  @ value: logi TRUE
+#>  @ value : logi TRUE
+#>  @ length: int 1
 json_boolean(FALSE)
 #> <jst::json_boolean>
-#>  @ value: logi FALSE
+#>  @ value : logi FALSE
+#>  @ length: int 1
 json_number(42)
 #> <jst::json_number>
-#>  @ value: num 42
+#>  @ value : num 42
+#>  @ length: int 1
 json_number(3.14)
 #> <jst::json_number>
-#>  @ value: num 3.14
+#>  @ value : num 3.14
+#>  @ length: int 1
 json_string("hello, world")
 #> <jst::json_string>
-#>  @ value: chr "hello, world"
+#>  @ value : chr "hello, world"
+#>  @ length: int 1
 ```
 
 Numbers are always serialised without scientific notation, and strings
@@ -51,13 +56,16 @@ are properly escaped:
 ``` r
 json_number(1e6)          # not "1e+06"
 #> <jst::json_number>
-#>  @ value: num 1e+06
+#>  @ value : num 1e+06
+#>  @ length: int 1
 json_string('say "hi"')   # internal quotes escaped
 #> <jst::json_string>
-#>  @ value: chr "say \"hi\""
+#>  @ value : chr "say \"hi\""
+#>  @ length: int 1
 json_string("line1\nline2")
 #> <jst::json_string>
-#>  @ value: chr "line1\nline2"
+#>  @ value : chr "line1\nline2"
+#>  @ length: int 1
 ```
 
 ## Arrays
@@ -72,13 +80,19 @@ for large sequences:
 ``` r
 json_vector(1:10)
 #> <jst::json_vector>
-#>  @ value: int [1:10] 1 2 3 4 5 6 7 8 9 10
+#>  @ value : int [1:10] 1 2 3 4 5 6 7 8 9 10
+#>  @ type  : chr "integer"
+#>  @ length: int 10
 json_vector(c("apple", "banana", "cherry"))
 #> <jst::json_vector>
-#>  @ value: chr [1:3] "apple" "banana" "cherry"
+#>  @ value : chr [1:3] "apple" "banana" "cherry"
+#>  @ type  : chr "string"
+#>  @ length: int 3
 json_vector(c(1.5, 2.5, 3.5))
 #> <jst::json_vector>
-#>  @ value: num [1:3] 1.5 2.5 3.5
+#>  @ value : num [1:3] 1.5 2.5 3.5
+#>  @ type  : chr "double"
+#>  @ length: int 3
 ```
 
 Use
@@ -93,15 +107,20 @@ json_array(1, "two", TRUE, json_null())
 #>  .. $ : chr "two"
 #>  .. $ : logi TRUE
 #>  .. $ : <jst::json_null>
+#>  @ length  : int 4
 json_array(json_boolean(FALSE), json_number(0), json_string(""))
 #> <jst::json_array>
 #>  @ elements:List of 3
 #>  .. $ : <jst::json_boolean>
-#>  ..  ..@ value: logi FALSE
+#>  ..  ..@ value : logi FALSE
+#>  ..  ..@ length: int 1
 #>  .. $ : <jst::json_number>
-#>  ..  ..@ value: num 0
+#>  ..  ..@ value : num 0
+#>  ..  ..@ length: int 1
 #>  .. $ : <jst::json_string>
-#>  ..  ..@ value: chr ""
+#>  ..  ..@ value : chr ""
+#>  ..  ..@ length: int 1
+#>  @ length  : int 3
 ```
 
 Passing a plain R vector to
@@ -117,6 +136,7 @@ json_array(1:5)          # same as json_array(1, 2, 3, 4, 5)
 #>  .. $ : int 3
 #>  .. $ : int 4
 #>  .. $ : int 5
+#>  @ length  : int 5
 ```
 
 ## Objects
@@ -132,6 +152,7 @@ json_object(name = "Alice", age = 30, active = TRUE)
 #>  .. $ name  : chr "Alice"
 #>  .. $ age   : num 30
 #>  .. $ active: logi TRUE
+#>  @ length : int 3
 
 json_object(
   id      = 1L,
@@ -142,11 +163,15 @@ json_object(
 #>  @ members:List of 3
 #>  .. $ id     : int 1
 #>  .. $ tags   : <jst::json_vector>
-#>  ..  ..@ value: chr [1:2] "r" "json"
+#>  ..  ..@ value : chr [1:2] "r" "json"
+#>  ..  ..@ type  : chr "string"
+#>  ..  ..@ length: int 2
 #>  .. $ address: <jst::json_object>
 #>  ..  ..@ members:List of 2
 #>  .. .. .. $ city: chr "London"
 #>  .. .. .. $ zip : chr "EC1A"
+#>  ..  ..@ length : int 2
+#>  @ length : int 3
 ```
 
 ## Coercion with `to_json()`
@@ -160,33 +185,40 @@ to_json(NULL)
 #> <jst::json_null>
 to_json(TRUE)
 #> <jst::json_boolean>
-#>  @ value: logi TRUE
+#>  @ value : logi TRUE
+#>  @ length: int 1
 to_json(99L)
 #> <jst::json_number>
-#>  @ value: num 99
+#>  @ value : num 99
+#>  @ length: int 1
 to_json(3.14)
 #> <jst::json_number>
-#>  @ value: num 3.14
+#>  @ value : num 3.14
+#>  @ length: int 1
 to_json("hello")
 #> <jst::json_string>
-#>  @ value: chr "hello"
+#>  @ value : chr "hello"
+#>  @ length: int 1
 ```
 
 Vectors of length \> 1 become arrays:
 
 ``` r
 to_json(c(TRUE, FALSE, TRUE))   # json_array  (logical)
-#> <jst::json_array>
-#>  @ elements:List of 3
-#>  .. $ : logi TRUE
-#>  .. $ : logi FALSE
-#>  .. $ : logi TRUE
+#> <jst::json_vector>
+#>  @ value : logi [1:3] TRUE FALSE TRUE
+#>  @ type  : chr "logical"
+#>  @ length: int 3
 to_json(1:5)                    # json_vector (integer)
 #> <jst::json_vector>
-#>  @ value: int [1:5] 1 2 3 4 5
+#>  @ value : int [1:5] 1 2 3 4 5
+#>  @ type  : chr "integer"
+#>  @ length: int 5
 to_json(c("a", "b", "c"))       # json_vector (character)
 #> <jst::json_vector>
-#>  @ value: chr [1:3] "a" "b" "c"
+#>  @ value : chr [1:3] "a" "b" "c"
+#>  @ type  : chr "string"
+#>  @ length: int 3
 ```
 
 Named lists become objects; unnamed lists become arrays:
@@ -197,12 +229,14 @@ to_json(list(x = 1, y = "hi"))    # json_object
 #>  @ members:List of 2
 #>  .. $ x: num 1
 #>  .. $ y: chr "hi"
+#>  @ length : int 2
 to_json(list(1, "two", TRUE))     # json_array
 #> <jst::json_array>
 #>  @ elements:List of 3
 #>  .. $ : num 1
 #>  .. $ : chr "two"
 #>  .. $ : logi TRUE
+#>  @ length  : int 3
 ```
 
 Already-constructed `json` values pass through unchanged:

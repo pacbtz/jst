@@ -60,24 +60,33 @@ json_null()
 #> <jst::json_null>
 json_boolean(TRUE)
 #> <jst::json_boolean>
-#>  @ value: logi TRUE
+#>  @ value : logi TRUE
+#>  @ length: int 1
 json_number(42)
 #> <jst::json_number>
-#>  @ value: num 42
+#>  @ value : num 42
+#>  @ length: int 1
 json_string("hello")
 #> <jst::json_string>
-#>  @ value: chr "hello"
+#>  @ value : chr "hello"
+#>  @ length: int 1
 
 # json_vector: typed homogeneous array — stores the raw R vector
 json_vector(1:20)
 #> <jst::json_vector>
-#>  @ value: int [1:20] 1 2 3 4 5 6 7 8 9 10 ...
+#>  @ value : int [1:20] 1 2 3 4 5 6 7 8 9 10 ...
+#>  @ type  : chr "integer"
+#>  @ length: int 20
 json_vector(c(1.5, 2.5, 3.5))
 #> <jst::json_vector>
-#>  @ value: num [1:3] 1.5 2.5 3.5
+#>  @ value : num [1:3] 1.5 2.5 3.5
+#>  @ type  : chr "double"
+#>  @ length: int 3
 json_vector(c("apple", "banana", "cherry"))
 #> <jst::json_vector>
-#>  @ value: chr [1:3] "apple" "banana" "cherry"
+#>  @ value : chr [1:3] "apple" "banana" "cherry"
+#>  @ type  : chr "string"
+#>  @ length: int 3
 
 # json_array: mixed-type array — each element can differ
 json_array(1, "two", TRUE, json_null())
@@ -87,6 +96,7 @@ json_array(1, "two", TRUE, json_null())
 #>  .. $ : chr "two"
 #>  .. $ : logi TRUE
 #>  .. $ : <jst::json_null>
+#>  @ length  : int 4
 
 # json_object requires named arguments
 json_object(x = 1, y = "hello", z = TRUE)
@@ -95,6 +105,7 @@ json_object(x = 1, y = "hello", z = TRUE)
 #>  .. $ x: num 1
 #>  .. $ y: chr "hello"
 #>  .. $ z: logi TRUE
+#>  @ length : int 3
 json_object(items = json_array(1:3), count = 3L)
 #> <jst::json_object>
 #>  @ members:List of 2
@@ -103,5 +114,7 @@ json_object(items = json_array(1:3), count = 3L)
 #>  .. .. .. $ : int 1
 #>  .. .. .. $ : int 2
 #>  .. .. .. $ : int 3
+#>  ..  ..@ length  : int 3
 #>  .. $ count: int 3
+#>  @ length : int 2
 ```

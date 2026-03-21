@@ -125,31 +125,39 @@ use <code>inherits(x, "json")</code> to check for any JSON value.</p>
 <span><span class="co">#&gt; &lt;jst::json_null&gt;</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_boolean</a></span><span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_boolean&gt;</span></span>
-<span><span class="co">#&gt;  @ value: logi TRUE</span></span>
+<span><span class="co">#&gt;  @ value : logi TRUE</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_boolean</a></span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_boolean&gt;</span></span>
-<span><span class="co">#&gt;  @ value: logi FALSE</span></span>
+<span><span class="co">#&gt;  @ value : logi FALSE</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_number</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_number&gt;</span></span>
-<span><span class="co">#&gt;  @ value: num 42</span></span>
+<span><span class="co">#&gt;  @ value : num 42</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_number</a></span><span class="op">(</span><span class="fl">3.14</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_number&gt;</span></span>
-<span><span class="co">#&gt;  @ value: num 3.14</span></span>
+<span><span class="co">#&gt;  @ value : num 3.14</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_string</a></span><span class="op">(</span><span class="st">"hello, world"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_string&gt;</span></span>
-<span><span class="co">#&gt;  @ value: chr "hello, world"</span></span></code></pre></div>
+<span><span class="co">#&gt;  @ value : chr "hello, world"</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span></code></pre></div>
 <p>Numbers are always serialised without scientific notation, and
 strings are properly escaped:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/json-classes.html">json_number</a></span><span class="op">(</span><span class="fl">1e6</span><span class="op">)</span>          <span class="co"># not "1e+06"</span></span>
 <span><span class="co">#&gt; &lt;jst::json_number&gt;</span></span>
-<span><span class="co">#&gt;  @ value: num 1e+06</span></span>
+<span><span class="co">#&gt;  @ value : num 1e+06</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_string</a></span><span class="op">(</span><span class="st">'say "hi"'</span><span class="op">)</span>   <span class="co"># internal quotes escaped</span></span>
 <span><span class="co">#&gt; &lt;jst::json_string&gt;</span></span>
-<span><span class="co">#&gt;  @ value: chr "say \"hi\""</span></span>
+<span><span class="co">#&gt;  @ value : chr "say \"hi\""</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_string</a></span><span class="op">(</span><span class="st">"line1\nline2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_string&gt;</span></span>
-<span><span class="co">#&gt;  @ value: chr "line1\nline2"</span></span></code></pre></div>
+<span><span class="co">#&gt;  @ value : chr "line1\nline2"</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="arrays">Arrays<a class="anchor" aria-label="anchor" href="#arrays"></a>
@@ -160,13 +168,19 @@ efficient than <code><a href="../reference/json-classes.html">json_array()</a></
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/json-classes.html">json_vector</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_vector&gt;</span></span>
-<span><span class="co">#&gt;  @ value: int [1:10] 1 2 3 4 5 6 7 8 9 10</span></span>
+<span><span class="co">#&gt;  @ value : int [1:10] 1 2 3 4 5 6 7 8 9 10</span></span>
+<span><span class="co">#&gt;  @ type  : chr "integer"</span></span>
+<span><span class="co">#&gt;  @ length: int 10</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_vector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_vector&gt;</span></span>
-<span><span class="co">#&gt;  @ value: chr [1:3] "apple" "banana" "cherry"</span></span>
+<span><span class="co">#&gt;  @ value : chr [1:3] "apple" "banana" "cherry"</span></span>
+<span><span class="co">#&gt;  @ type  : chr "string"</span></span>
+<span><span class="co">#&gt;  @ length: int 3</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_vector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">2.5</span>, <span class="fl">3.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_vector&gt;</span></span>
-<span><span class="co">#&gt;  @ value: num [1:3] 1.5 2.5 3.5</span></span></code></pre></div>
+<span><span class="co">#&gt;  @ value : num [1:3] 1.5 2.5 3.5</span></span>
+<span><span class="co">#&gt;  @ type  : chr "double"</span></span>
+<span><span class="co">#&gt;  @ length: int 3</span></span></code></pre></div>
 <p>Use <code><a href="../reference/json-classes.html">json_array()</a></code> for <strong>mixed-type</strong> arrays,
 including nested JSON values:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -177,15 +191,20 @@ including nested JSON values:</p>
 <span><span class="co">#&gt;  .. $ : chr "two"</span></span>
 <span><span class="co">#&gt;  .. $ : logi TRUE</span></span>
 <span><span class="co">#&gt;  .. $ : &lt;jst::json_null&gt;</span></span>
+<span><span class="co">#&gt;  @ length  : int 4</span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_array</a></span><span class="op">(</span><span class="fu"><a href="../reference/json-classes.html">json_boolean</a></span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span>, <span class="fu"><a href="../reference/json-classes.html">json_number</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="../reference/json-classes.html">json_string</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_array&gt;</span></span>
 <span><span class="co">#&gt;  @ elements:List of 3</span></span>
 <span><span class="co">#&gt;  .. $ : &lt;jst::json_boolean&gt;</span></span>
-<span><span class="co">#&gt;  ..  ..@ value: logi FALSE</span></span>
+<span><span class="co">#&gt;  ..  ..@ value : logi FALSE</span></span>
+<span><span class="co">#&gt;  ..  ..@ length: int 1</span></span>
 <span><span class="co">#&gt;  .. $ : &lt;jst::json_number&gt;</span></span>
-<span><span class="co">#&gt;  ..  ..@ value: num 0</span></span>
+<span><span class="co">#&gt;  ..  ..@ value : num 0</span></span>
+<span><span class="co">#&gt;  ..  ..@ length: int 1</span></span>
 <span><span class="co">#&gt;  .. $ : &lt;jst::json_string&gt;</span></span>
-<span><span class="co">#&gt;  ..  ..@ value: chr ""</span></span></code></pre></div>
+<span><span class="co">#&gt;  ..  ..@ value : chr ""</span></span>
+<span><span class="co">#&gt;  ..  ..@ length: int 1</span></span>
+<span><span class="co">#&gt;  @ length  : int 3</span></span></code></pre></div>
 <p>Passing a plain R vector to <code><a href="../reference/json-classes.html">json_array()</a></code> expands it
 element-by-element:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -196,7 +215,8 @@ element-by-element:</p>
 <span><span class="co">#&gt;  .. $ : int 2</span></span>
 <span><span class="co">#&gt;  .. $ : int 3</span></span>
 <span><span class="co">#&gt;  .. $ : int 4</span></span>
-<span><span class="co">#&gt;  .. $ : int 5</span></span></code></pre></div>
+<span><span class="co">#&gt;  .. $ : int 5</span></span>
+<span><span class="co">#&gt;  @ length  : int 5</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="objects">Objects<a class="anchor" aria-label="anchor" href="#objects"></a>
@@ -211,6 +231,7 @@ already-constructed JSON value:</p>
 <span><span class="co">#&gt;  .. $ name  : chr "Alice"</span></span>
 <span><span class="co">#&gt;  .. $ age   : num 30</span></span>
 <span><span class="co">#&gt;  .. $ active: logi TRUE</span></span>
+<span><span class="co">#&gt;  @ length : int 3</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/json-classes.html">json_object</a></span><span class="op">(</span></span>
 <span>  id      <span class="op">=</span> <span class="fl">1L</span>,</span>
@@ -221,11 +242,15 @@ already-constructed JSON value:</p>
 <span><span class="co">#&gt;  @ members:List of 3</span></span>
 <span><span class="co">#&gt;  .. $ id     : int 1</span></span>
 <span><span class="co">#&gt;  .. $ tags   : &lt;jst::json_vector&gt;</span></span>
-<span><span class="co">#&gt;  ..  ..@ value: chr [1:2] "r" "json"</span></span>
+<span><span class="co">#&gt;  ..  ..@ value : chr [1:2] "r" "json"</span></span>
+<span><span class="co">#&gt;  ..  ..@ type  : chr "string"</span></span>
+<span><span class="co">#&gt;  ..  ..@ length: int 2</span></span>
 <span><span class="co">#&gt;  .. $ address: &lt;jst::json_object&gt;</span></span>
 <span><span class="co">#&gt;  ..  ..@ members:List of 2</span></span>
 <span><span class="co">#&gt;  .. .. .. $ city: chr "London"</span></span>
-<span><span class="co">#&gt;  .. .. .. $ zip : chr "EC1A"</span></span></code></pre></div>
+<span><span class="co">#&gt;  .. .. .. $ zip : chr "EC1A"</span></span>
+<span><span class="co">#&gt;  ..  ..@ length : int 2</span></span>
+<span><span class="co">#&gt;  @ length : int 3</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="coercion-with-to_json">Coercion with <code>to_json()</code><a class="anchor" aria-label="anchor" href="#coercion-with-to_json"></a>
@@ -238,30 +263,37 @@ constructors by hand:</p>
 <span><span class="co">#&gt; &lt;jst::json_null&gt;</span></span>
 <span><span class="fu"><a href="../reference/to_json.html">to_json</a></span><span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_boolean&gt;</span></span>
-<span><span class="co">#&gt;  @ value: logi TRUE</span></span>
+<span><span class="co">#&gt;  @ value : logi TRUE</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span>
 <span><span class="fu"><a href="../reference/to_json.html">to_json</a></span><span class="op">(</span><span class="fl">99L</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_number&gt;</span></span>
-<span><span class="co">#&gt;  @ value: num 99</span></span>
+<span><span class="co">#&gt;  @ value : num 99</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span>
 <span><span class="fu"><a href="../reference/to_json.html">to_json</a></span><span class="op">(</span><span class="fl">3.14</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_number&gt;</span></span>
-<span><span class="co">#&gt;  @ value: num 3.14</span></span>
+<span><span class="co">#&gt;  @ value : num 3.14</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span>
 <span><span class="fu"><a href="../reference/to_json.html">to_json</a></span><span class="op">(</span><span class="st">"hello"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_string&gt;</span></span>
-<span><span class="co">#&gt;  @ value: chr "hello"</span></span></code></pre></div>
+<span><span class="co">#&gt;  @ value : chr "hello"</span></span>
+<span><span class="co">#&gt;  @ length: int 1</span></span></code></pre></div>
 <p>Vectors of length &gt; 1 become arrays:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/to_json.html">to_json</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>   <span class="co"># json_array  (logical)</span></span>
-<span><span class="co">#&gt; &lt;jst::json_array&gt;</span></span>
-<span><span class="co">#&gt;  @ elements:List of 3</span></span>
-<span><span class="co">#&gt;  .. $ : logi TRUE</span></span>
-<span><span class="co">#&gt;  .. $ : logi FALSE</span></span>
-<span><span class="co">#&gt;  .. $ : logi TRUE</span></span>
+<span><span class="co">#&gt; &lt;jst::json_vector&gt;</span></span>
+<span><span class="co">#&gt;  @ value : logi [1:3] TRUE FALSE TRUE</span></span>
+<span><span class="co">#&gt;  @ type  : chr "logical"</span></span>
+<span><span class="co">#&gt;  @ length: int 3</span></span>
 <span><span class="fu"><a href="../reference/to_json.html">to_json</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>                    <span class="co"># json_vector (integer)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_vector&gt;</span></span>
-<span><span class="co">#&gt;  @ value: int [1:5] 1 2 3 4 5</span></span>
+<span><span class="co">#&gt;  @ value : int [1:5] 1 2 3 4 5</span></span>
+<span><span class="co">#&gt;  @ type  : chr "integer"</span></span>
+<span><span class="co">#&gt;  @ length: int 5</span></span>
 <span><span class="fu"><a href="../reference/to_json.html">to_json</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span>       <span class="co"># json_vector (character)</span></span>
 <span><span class="co">#&gt; &lt;jst::json_vector&gt;</span></span>
-<span><span class="co">#&gt;  @ value: chr [1:3] "a" "b" "c"</span></span></code></pre></div>
+<span><span class="co">#&gt;  @ value : chr [1:3] "a" "b" "c"</span></span>
+<span><span class="co">#&gt;  @ type  : chr "string"</span></span>
+<span><span class="co">#&gt;  @ length: int 3</span></span></code></pre></div>
 <p>Named lists become objects; unnamed lists become arrays:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/to_json.html">to_json</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span>, y <span class="op">=</span> <span class="st">"hi"</span><span class="op">)</span><span class="op">)</span>    <span class="co"># json_object</span></span>
@@ -269,12 +301,14 @@ constructors by hand:</p>
 <span><span class="co">#&gt;  @ members:List of 2</span></span>
 <span><span class="co">#&gt;  .. $ x: num 1</span></span>
 <span><span class="co">#&gt;  .. $ y: chr "hi"</span></span>
+<span><span class="co">#&gt;  @ length : int 2</span></span>
 <span><span class="fu"><a href="../reference/to_json.html">to_json</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span>, <span class="st">"two"</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>     <span class="co"># json_array</span></span>
 <span><span class="co">#&gt; &lt;jst::json_array&gt;</span></span>
 <span><span class="co">#&gt;  @ elements:List of 3</span></span>
 <span><span class="co">#&gt;  .. $ : num 1</span></span>
 <span><span class="co">#&gt;  .. $ : chr "two"</span></span>
-<span><span class="co">#&gt;  .. $ : logi TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt;  .. $ : logi TRUE</span></span>
+<span><span class="co">#&gt;  @ length  : int 3</span></span></code></pre></div>
 <p>Already-constructed <code>json</code> values pass through
 unchanged:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">

@@ -57,13 +57,17 @@ to_json(NULL)
 #> <jst::json_null>
 to_json(TRUE)
 #> <jst::json_boolean>
-#>  @ value: logi TRUE
+#>  @ value : logi TRUE
+#>  @ length: int 1
 to_json(1:5)
 #> <jst::json_vector>
-#>  @ value: int [1:5] 1 2 3 4 5
+#>  @ value : int [1:5] 1 2 3 4 5
+#>  @ type  : chr "integer"
+#>  @ length: int 5
 to_json(list(a = 1, b = "x"))
 #> <jst::json_object>
 #>  @ members:List of 2
 #>  .. $ a: num 1
 #>  .. $ b: chr "x"
+#>  @ length : int 2
 ```
