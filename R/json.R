@@ -298,20 +298,115 @@ format.S7_object <- function(x, ...) {
   if (S7::S7_inherits(x, json)) .json_format(x, ...) else NextMethod()
 }
 
+# ---- Pretty printing --------------------------------------------------------
+
+## Build a one-line or indented representation of a plain R value stored
+## inside json_array / json_object elements.
+.json_pretty_r <- function(x, indent, depth, vector_max) {
+  if (inherits(x, "json") || S7::S7_inherits(x, json))
+    return(.json_pretty_impl(x, indent, depth, vector_max))
+  .r_to_json_str(x)
+}
+
+## Recursive pretty-printer for json objects.
+.json_pretty_impl <- function(x, indent, depth, vector_max) {
+  pad  <- strrep(" ", indent * depth)
+  pad1 <- strrep(" ", indent * (depth + 1L))
+
+  if (S7::S7_inherits(x, json_null))    return("null")
+  if (S7::S7_inherits(x, json_boolean)) return(if (x@value) "true" else "false")
+  if (S7::S7_inherits(x, json_number))  return(format(x@value, scientific = FALSE, trim = TRUE))
+  if (S7::S7_inherits(x, json_string))  return(paste0('"', .json_escape(x@value), '"'))
+
+  if (S7::S7_inherits(x, json_vector)) {
+    v      <- x@value
+    n      <- length(v)
+    shown  <- min(n, vector_max)
+    elems  <- if (is.character(v)) {
+      paste0('"', .json_escape(v[seq_len(shown)]), '"')
+    } else if (is.logical(v)) {
+      ifelse(v[seq_len(shown)], "true", "false")
+    } else {
+      format(v[seq_len(shown)], scientific = FALSE, trim = TRUE)
+    }
+    suffix <- if (n > shown) paste0(", ... (", n - shown, " more)") else ""
+    return(paste0("[", paste(elems, collapse = ", "), suffix, "]"))
+  }
+
+  if (S7::S7_inherits(x, json_array)) {
+    elems <- x@elements
+    if (length(elems) == 0L) return("[]")
+    inner <- vapply(elems, function(e) {
+      paste0(pad1, .json_pretty_r(e, indent, depth + 1L, vector_max))
+    }, character(1L))
+    return(paste0("[\n", paste(inner, collapse = ",\n"), "\n", pad, "]"))
+  }
+
+  if (S7::S7_inherits(x, json_object)) {
+    ms <- x@members
+    if (length(ms) == 0L) return("{}")
+    inner <- mapply(function(k, v) {
+      paste0(pad1, '"', .json_escape(k), '": ',
+             .json_pretty_r(v, indent, depth + 1L, vector_max))
+    }, names(ms), ms, SIMPLIFY = TRUE, USE.NAMES = FALSE)
+    return(paste0("{\n", paste(inner, collapse = ",\n"), "\n", pad, "}"))
+  }
+
+  format(x)
+}
+
+#' Pretty-print a JSON object
+#'
+#' Produces an indented, human-readable JSON string suitable for display.
+#' Arrays produced by [json_vector] are always rendered on a single line; if
+#' the vector contains more than `vector_max` elements the remainder is
+#' replaced with `... (N more)`.  The global default for `vector_max` can be
+#' set via `options(jst.vector_max = <n>)`.
+#'
+#' @param x A [json] object.
+#' @param indent Number of spaces per indentation level (default `2`).
+#' @param vector_max Maximum number of elements to show for [json_vector]
+#'   before truncating.  Defaults to `getOption("jst.vector_max", 10L)`.
+#' @return A single character string (invisibly from `print`).
 #' @export
-print.json <- function(x, ...) {
-  cat(.json_format(x, ...), "\n")
+json_pretty <- function(x,
+                        indent     = 2L,
+                        vector_max = getOption("jst.vector_max", 10L)) {
+  .json_pretty_impl(x, indent = indent, depth = 0L, vector_max = vector_max)
+}
+
+## Build the one-line header shown at the top of every print output.
+.json_header <- function(x) {
+  cls  <- sub("^.*::", "", class(x)[[1L]])
+  info <- if (S7::S7_inherits(x, json_null)) {
+    ""
+  } else if (S7::S7_inherits(x, json_vector)) {
+    paste0(" [length:", x@length, ", type:", x@type, "]")
+  } else {
+    paste0(" [length:", x@length, "]")
+  }
+  paste0("<", cls, info, ">")
+}
+
+#' @export
+print.json <- function(x, ...,
+                       indent     = 2L,
+                       vector_max = getOption("jst.vector_max", 10L),
+                       max_lines  = getOption("jst.max_lines",  20L)) {
+  cat(.json_header(x), "\n")
+  pretty <- json_pretty(x, indent = indent, vector_max = vector_max)
+  lines  <- strsplit(pretty, "\n", fixed = TRUE)[[1L]]
+  if (length(lines) > max_lines) {
+    lines <- c(lines[seq_len(max_lines)],
+               paste0("... (", length(lines) - max_lines, " more lines)"))
+  }
+  cat(paste(lines, collapse = "\n"), "\n")
   invisible(x)
 }
 
 #' @export
 print.S7_object <- function(x, ...) {
-  if (S7::S7_inherits(x, json)) {
-    cat(.json_format(x, ...), "\n")
-    invisible(x)
-  } else {
-    NextMethod()
-  }
+  if (S7::S7_inherits(x, json)) print.json(x, ...) else NextMethod()
 }
 
 # ---- Coercion ---------------------------------------------------------------
