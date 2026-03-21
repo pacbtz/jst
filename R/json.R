@@ -18,6 +18,14 @@
 #' All JSON objects have `format()` and `print()` methods that produce valid
 #' JSON text.
 #'
+#' ## JSON5 output
+#'
+#' Pass `json5 = TRUE` to `format()`, `print()`, or [json_pretty()] to produce
+#' [JSON5](https://json5.org/) output.  In JSON5 mode strings are delimited
+#' with single quotes and object keys that are valid identifiers are left
+#' unquoted.  The global default can be set with
+#' `options(jst.json5 = TRUE)`.
+#'
 #' @param value The R value to store (logical, numeric, or character scalar/vector).
 #' @param ... Named or unnamed arguments passed to the constructor.
 #'
@@ -195,19 +203,30 @@ json_object <- S7::new_class(
 
 # ---- Serialization ----------------------------------------------------------
 
-## Escape a character string for inclusion inside JSON double-quotes.
-.json_escape <- function(s) {
+## Return TRUE if s is a valid unquoted JSON5 identifier key.
+.is_json5_identifier <- function(s) {
+  grepl("^[A-Za-z_$][A-Za-z0-9_$]*$", s)
+}
+
+## Escape a character string for inclusion inside JSON/JSON5 quotes.
+## quote_char: '"' (default, standard JSON) or "'" (JSON5 single-quoted).
+.json_escape <- function(s, quote_char = '"') {
   s <- gsub("\\\\", "\\\\\\\\", s, fixed = FALSE) # \ -> \\
-  s <- gsub('"',    '\\"',      s, fixed = TRUE)   # " -> \"
+  if (quote_char == "'") {
+    s <- gsub("'",  "\\'",  s, fixed = TRUE)       # ' -> \'
+  } else {
+    s <- gsub('"',  '\\"',  s, fixed = TRUE)       # " -> \"
+  }
   s <- gsub("\n",   "\\n",      s, fixed = TRUE)   # newline
   s <- gsub("\r",   "\\r",      s, fixed = TRUE)   # CR
   s <- gsub("\t",   "\\t",      s, fixed = TRUE)   # tab
   s
 }
 
-## Convert an arbitrary R value (or json object) to a JSON string.
-.r_to_json_str <- function(x) {
-  if (inherits(x, "json") || S7::S7_inherits(x, json)) return(format(x))
+## Convert an arbitrary R value (or json object) to a JSON/JSON5 string.
+.r_to_json_str <- function(x, json5 = FALSE) {
+  if (inherits(x, "json") || S7::S7_inherits(x, json))
+    return(format(x, json5 = json5))
   if (is.null(x))          return("null")
   if (is.logical(x)) {
     strs <- ifelse(x, "true", "false")
@@ -220,20 +239,25 @@ json_object <- S7::new_class(
     return(paste0("[", paste(strs, collapse = ", "), "]"))
   }
   if (is.character(x)) {
-    quoted <- paste0('"', .json_escape(x), '"')
+    q      <- if (json5) "'" else '"'
+    quoted <- paste0(q, .json_escape(x, quote_char = q), q)
     if (length(x) == 1L) return(quoted)
     return(paste0("[", paste(quoted, collapse = ", "), "]"))
   }
   if (is.list(x)) {
     if (!is.null(names(x))) {
       pairs <- mapply(
-        function(k, v) paste0('"', .json_escape(k), '": ', .r_to_json_str(v)),
+        function(k, v) {
+          key <- if (json5 && .is_json5_identifier(k)) k
+                 else paste0('"', .json_escape(k), '"')
+          paste0(key, ": ", .r_to_json_str(v, json5 = json5))
+        },
         names(x), x,
         SIMPLIFY = TRUE, USE.NAMES = FALSE
       )
       return(paste0("{", paste(pairs, collapse = ", "), "}"))
     } else {
-      elems <- vapply(x, .r_to_json_str, character(1L))
+      elems <- vapply(x, .r_to_json_str, character(1L), json5 = json5)
       return(paste0("[", paste(elems, collapse = ", "), "]"))
     }
   }
@@ -259,14 +283,16 @@ S7::method(.json_format, json_number) <- function(x, ...) {
   format(x@value, scientific = FALSE, trim = TRUE)
 }
 
-S7::method(.json_format, json_string) <- function(x, ...) {
-  paste0('"', .json_escape(x@value), '"')
+S7::method(.json_format, json_string) <- function(x, ..., json5 = FALSE) {
+  q <- if (json5) "'" else '"'
+  paste0(q, .json_escape(x@value, quote_char = q), q)
 }
 
-S7::method(.json_format, json_vector) <- function(x, ...) {
+S7::method(.json_format, json_vector) <- function(x, ..., json5 = FALSE) {
   v <- x@value
   elems <- if (is.character(v)) {
-    paste0('"', .json_escape(v), '"')
+    q <- if (json5) "'" else '"'
+    paste0(q, .json_escape(v, quote_char = q), q)
   } else if (is.logical(v)) {
     ifelse(v, "true", "false")
   } else {
@@ -275,15 +301,19 @@ S7::method(.json_format, json_vector) <- function(x, ...) {
   paste0("[", paste(elems, collapse = ", "), "]")
 }
 
-S7::method(.json_format, json_array) <- function(x, ...) {
-  elems <- vapply(x@elements, .r_to_json_str, character(1L))
+S7::method(.json_format, json_array) <- function(x, ..., json5 = FALSE) {
+  elems <- vapply(x@elements, .r_to_json_str, character(1L), json5 = json5)
   paste0("[", paste(elems, collapse = ", "), "]")
 }
 
-S7::method(.json_format, json_object) <- function(x, ...) {
+S7::method(.json_format, json_object) <- function(x, ..., json5 = FALSE) {
   if (length(x@members) == 0L) return("{}")
   pairs <- mapply(
-    function(k, v) paste0('"', .json_escape(k), '": ', .r_to_json_str(v)),
+    function(k, v) {
+      key <- if (json5 && .is_json5_identifier(k)) k
+             else paste0('"', .json_escape(k), '"')
+      paste0(key, ": ", .r_to_json_str(v, json5 = json5))
+    },
     names(x@members), x@members,
     SIMPLIFY = TRUE, USE.NAMES = FALSE
   )
@@ -291,39 +321,45 @@ S7::method(.json_format, json_object) <- function(x, ...) {
 }
 
 #' @export
-format.json <- function(x, ...) .json_format(x, ...)
+format.json <- function(x, ..., json5 = getOption("jst.json5", FALSE)) {
+  .json_format(x, ..., json5 = json5)
+}
 
 #' @export
-format.S7_object <- function(x, ...) {
-  if (S7::S7_inherits(x, json)) .json_format(x, ...) else NextMethod()
+format.S7_object <- function(x, ..., json5 = getOption("jst.json5", FALSE)) {
+  if (S7::S7_inherits(x, json)) .json_format(x, ..., json5 = json5) else NextMethod()
 }
 
 # ---- Pretty printing --------------------------------------------------------
 
 ## Build a one-line or indented representation of a plain R value stored
 ## inside json_array / json_object elements.
-.json_pretty_r <- function(x, indent, depth, vector_max) {
+.json_pretty_r <- function(x, indent, depth, vector_max, json5 = FALSE) {
   if (inherits(x, "json") || S7::S7_inherits(x, json))
-    return(.json_pretty_impl(x, indent, depth, vector_max))
-  .r_to_json_str(x)
+    return(.json_pretty_impl(x, indent, depth, vector_max, json5))
+  .r_to_json_str(x, json5 = json5)
 }
 
 ## Recursive pretty-printer for json objects.
-.json_pretty_impl <- function(x, indent, depth, vector_max) {
+.json_pretty_impl <- function(x, indent, depth, vector_max, json5 = FALSE) {
   pad  <- strrep(" ", indent * depth)
   pad1 <- strrep(" ", indent * (depth + 1L))
 
   if (S7::S7_inherits(x, json_null))    return("null")
   if (S7::S7_inherits(x, json_boolean)) return(if (x@value) "true" else "false")
   if (S7::S7_inherits(x, json_number))  return(format(x@value, scientific = FALSE, trim = TRUE))
-  if (S7::S7_inherits(x, json_string))  return(paste0('"', .json_escape(x@value), '"'))
+  if (S7::S7_inherits(x, json_string)) {
+    q <- if (json5) "'" else '"'
+    return(paste0(q, .json_escape(x@value, quote_char = q), q))
+  }
 
   if (S7::S7_inherits(x, json_vector)) {
     v      <- x@value
     n      <- length(v)
     shown  <- min(n, vector_max)
     elems  <- if (is.character(v)) {
-      paste0('"', .json_escape(v[seq_len(shown)]), '"')
+      q <- if (json5) "'" else '"'
+      paste0(q, .json_escape(v[seq_len(shown)], quote_char = q), q)
     } else if (is.logical(v)) {
       ifelse(v[seq_len(shown)], "true", "false")
     } else {
@@ -337,7 +373,7 @@ format.S7_object <- function(x, ...) {
     elems <- x@elements
     if (length(elems) == 0L) return("[]")
     inner <- vapply(elems, function(e) {
-      paste0(pad1, .json_pretty_r(e, indent, depth + 1L, vector_max))
+      paste0(pad1, .json_pretty_r(e, indent, depth + 1L, vector_max, json5))
     }, character(1L))
     return(paste0("[\n", paste(inner, collapse = ",\n"), "\n", pad, "]"))
   }
@@ -346,8 +382,10 @@ format.S7_object <- function(x, ...) {
     ms <- x@members
     if (length(ms) == 0L) return("{}")
     inner <- mapply(function(k, v) {
-      paste0(pad1, '"', .json_escape(k), '": ',
-             .json_pretty_r(v, indent, depth + 1L, vector_max))
+      key <- if (json5 && .is_json5_identifier(k)) k
+             else paste0('"', .json_escape(k), '"')
+      paste0(pad1, key, ": ",
+             .json_pretty_r(v, indent, depth + 1L, vector_max, json5))
     }, names(ms), ms, SIMPLIFY = TRUE, USE.NAMES = FALSE)
     return(paste0("{\n", paste(inner, collapse = ",\n"), "\n", pad, "}"))
   }
@@ -367,12 +405,17 @@ format.S7_object <- function(x, ...) {
 #' @param indent Number of spaces per indentation level (default `2`).
 #' @param vector_max Maximum number of elements to show for [json_vector]
 #'   before truncating.  Defaults to `getOption("jst.vector_max", 10L)`.
+#' @param json5 If `TRUE`, produce JSON5 output: strings are single-quoted and
+#'   object keys that are valid identifiers are left unquoted.  Defaults to
+#'   `getOption("jst.json5", FALSE)`.
 #' @return A single character string (invisibly from `print`).
 #' @export
 json_pretty <- function(x,
                         indent     = 2L,
-                        vector_max = getOption("jst.vector_max", 10L)) {
-  .json_pretty_impl(x, indent = indent, depth = 0L, vector_max = vector_max)
+                        vector_max = getOption("jst.vector_max", 10L),
+                        json5      = getOption("jst.json5",      FALSE)) {
+  .json_pretty_impl(x, indent = indent, depth = 0L,
+                    vector_max = vector_max, json5 = json5)
 }
 
 ## Build the one-line header shown at the top of every print output.
@@ -392,9 +435,10 @@ json_pretty <- function(x,
 print.json <- function(x, ...,
                        indent     = 2L,
                        vector_max = getOption("jst.vector_max", 10L),
-                       max_lines  = getOption("jst.max_lines",  20L)) {
+                       max_lines  = getOption("jst.max_lines",  20L),
+                       json5      = getOption("jst.json5",      FALSE)) {
   cat(.json_header(x), "\n")
-  pretty <- json_pretty(x, indent = indent, vector_max = vector_max)
+  pretty <- json_pretty(x, indent = indent, vector_max = vector_max, json5 = json5)
   lines  <- strsplit(pretty, "\n", fixed = TRUE)[[1L]]
   if (length(lines) > max_lines) {
     lines <- c(lines[seq_len(max_lines)],
