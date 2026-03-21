@@ -115,8 +115,27 @@ test_that("json_vector() rejects empty vector", {
   expect_error(json_vector(integer(0)), "non-empty")
 })
 
-test_that("json_vector() rejects logical vector", {
-  expect_error(json_vector(c(TRUE, FALSE)), "character, integer, or double")
+test_that("json_vector() constructs from logical vector", {
+  x <- json_vector(c(TRUE, FALSE, TRUE))
+  expect_equal(x@value, c(TRUE, FALSE, TRUE))
+  expect_equal(x@type, "logical")
+  expect_equal(x@size, 3L)
+})
+
+test_that("json_vector() formats logical as JSON array of true/false", {
+  expect_equal(format(json_vector(c(TRUE, FALSE))), "[true, false]")
+})
+
+test_that("json_vector() type field reflects element type", {
+  expect_equal(json_vector(1:3)@type,              "integer")
+  expect_equal(json_vector(c(1.1, 2.2))@type,      "double")
+  expect_equal(json_vector(c("a", "b"))@type,      "string")
+  expect_equal(json_vector(c(TRUE, FALSE))@type,   "logical")
+})
+
+test_that("json_vector() size field records vector length", {
+  expect_equal(json_vector(1:5)@size,              5L)
+  expect_equal(json_vector(c("x", "y", "z"))@size, 3L)
 })
 
 # ---- json_array --------------------------------------------------------------
